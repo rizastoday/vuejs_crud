@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Vue.js CRUD</title>
+    <link rel="stylesheet" href="./styles/bootstrap.css">
+    <link rel="stylesheet" href="./styles/mdb.css">
+    <link rel="stylesheet" href="./styles/all.css">
+    <link rel="stylesheet" href="./styles/sweetalert2.css">
+    <link rel="stylesheet" href="./styles/styles.css">
+</head>
+<body style="background: #f7f7f7">
+<div id="app">
+
+    <div class="container mt-2 alert alert-danger fixed-bottom show fade" role="alert" v-if="alertFailed">
+    	{{alertFailed}} !
+	    <button type="button" class="close" @click="alertFailed = ''">
+	    	<span aria-hidden="true">&times;</span>
+	  	</button>
+    </div>
+
+    <div class="container mt-2 alert alert-success fixed-bottom show fade" role="alert" v-if="alertSuccess">
+    	{{alertSuccess}} !
+	    <button type="button" class="close" @click="alertSuccess = ''">
+	    	<span aria-hidden="true">&times;</span>
+	  	</button>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-primary d-flex justify-content-center">
+        <div class="container">
+            <a href="#" class="navbar-brand h3-responsive text-white">Vue.js CRUD</a>
+        </div>
+    </nav>
+
+    <!-- Body -->
+    <div class="container mt-3">
+        <div class="card animated fadeIn">
+            <div class="card-header">
+                <h3 class="h3-responsive text-center card-title">Tabel User</h3>
+            </div>
+            <div class="card-body">
+                <button v-if="isVisible" class="btn btn-sm purple float-right" data-toggle="modal" data-target="#modalAdd">Tambah <span class="ml-1 fa fa-plus-circle white-text"></span></button><br>
+                <div class="text-center" v-if="noData">
+                	<h2>Belum Ada Data</h2>
+                	<button class="btn btn-lg purple" data-toggle="modal" data-target="#modalAdd">Tambah Baru<span class="ml-1 fa fa-plus-circle white-text"></span></button>
+                </div>
+                <table class="table table-hover table-bordered table-striped table-info" v-if="isVisible">
+                    <thead class="aqua-gradient text-white">
+                        <tr>
+                            <td>ID</td>
+                            <td>Name</td>
+                            <td>Email</td>
+                            <td>Phone</td>
+                            <td>Profesi</td>
+                            <td>Action</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(user, index) in users" :key="index">
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.phone }}</td>
+                            <td>{{ user.jobs }}</td>
+                            <td class="justify-content-center d-flex p-0 m-0">
+                                <button class="btn btn-sm blue" data-toggle="modal" data-target="#modalEdit" @click="clickUser(user)">
+                                	edit
+                                	<span class="ml-1 fa fa-pencil-alt white-text"></span>
+                            	</button>
+                                <button class="btn btn-sm red" data-toggle="modal" data-target="#modalDelete" @click="clickUser(user)">
+                                	hapus
+                                	<span class="ml-1 fa fa-trash-alt white-text"></span>
+                            	</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header d-flex">
+                    <h5 class="modal-title m-auto" id="exampleModalLabel">Tambah User Baru</h5>
+                </div>
+                <div class="modal-body">
+                    <form action="">
+                        <div class="input-group mt-2">
+                            <input type="text" class="form-control input alert-info" placeholder="ID" v-model="newUsers.formID">
+                        </div>
+                        <div class="input-group mt-2">
+                            <input type="text" class="form-control input alert-info" placeholder="Name" v-model="newUsers.formName">
+                        </div>
+                        <div class="input-group mt-2">
+                            <input type="email" class="form-control input alert-info" placeholder="Email" v-model="newUsers.formEmail">
+                        </div>
+                        <div class="input-group mt-2">
+                            <input type="number" class="form-control input alert-info" min="11" max="13" placeholder="Phone" v-model="newUsers.formPhone">
+                        </div>
+                        <div class="input-group mt-2">
+                            <input type="text" class="form-control input alert-info" placeholder="Profession" v-model="newUsers.formJobs">
+                        </div>
+                        <div class="input-group">
+                            <div class="btn-group d-flex justify-content-center w-100 p-2">
+                                <button class="btn green waves-effect waves-light m-1" data-dismiss="modal" aria-label="Close" @click="addUsers">Simpan
+                                	<span class="ml-1 fa fa-check white-text"></span>
+                                </button>
+                                <button class="btn red waves-effect waves-light m-1" data-dismiss="modal" aria-label="Close">Batal
+                                	<span class="ml-1 fa fa-window-close white-text"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalEdit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header d-flex">
+                    <h5 class="modal-title m-auto" id="exampleModalLabel">Edit Data User Berikut</h5>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="input-group mt-2">
+                            <input type="text" class="form-control input alert-info" placeholder="Name" v-model="selectedUser.id">
+                        </div>
+                        <div class="input-group mt-2">
+                            <input type="text" class="form-control input alert-info" placeholder="Name" v-model="selectedUser.username">
+                        </div>
+                        <div class="input-group mt-2">
+                            <input type="email" class="form-control input alert-info" placeholder="Email" v-model="selectedUser.email">
+                        </div>
+                        <div class="input-group mt-2">
+                            <input type="number" class="form-control input alert-info" min="11" max="13" placeholder="Phone" v-model="selectedUser.phone">
+                        </div>
+                        <div class="input-group mt-2">
+                            <input type="text" class="form-control input alert-info" placeholder="Profession" v-model="selectedUser.jobs">
+                        </div>
+                        <div class="input-group">
+                            <div class="btn-group d-flex justify-content-center w-100 p-2">
+                                <button class="btn green waves-effect waves-light m-1" data-dismiss="modal" aria-label="Close" @click.prevent="updateUsers">Perbarui
+                                	<span class="ml-1 fa fa-user-edit white-text"></span>
+                                </button>
+                                <button class="btn red waves-effect waves-light m-1" data-dismiss="modal" aria-label="Close">
+                                Batal
+                                	<span class="ml-1 fa fa-window-close white-text"></span>
+                            	</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body d-flex flex-column justify-content-center">
+                    <h5 class="modal-title m-auto" id="exampleModalLabel">Apakah anda yakin?  </h5>
+                    <p class="m-auto">Anda akan menghapus <span v-text="selectedUser.username" class="red-text"></span></p>
+                    <div class="btn-group d-flex justify-content-center">
+                        <div class="btn green waves-effect waves-light m-1" data-dismiss="modal" aria-label="Close" @click="deleteUser">Yap!
+							<span class="ml-1 fa fa-check white-text"></span>
+                        </div>
+                        <div class="btn red waves-effect waves-light m-1" data-dismiss="modal" aria-label="Close">Batal
+							<span class="ml-1 fa fa-window-close white-text"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+    <script src="./scripts/vue.js"></script>
+    <script src="./scripts/jquery.js"></script>
+    <script src="./scripts/axios.js"></script>
+    <script src="./scripts/bootstrap.js"></script>
+    <script src="./scripts/popper.min.js"></script>
+    <script src="./scripts/all.js"></script>
+    <script src="./scripts/sweetalert2.all.js"></script>
+    <script src="./scripts/main.js"></script>
+</body>
+</html>
