@@ -1,6 +1,6 @@
 <?php
 
-$connect = new mysqli("localhost", "root", "Riza@P192", "vuejs_crud");
+$connect = new mysqli("localhost", "root", "", "vuejs_crud");
 if($connect->connect_error){
 
 } else {
